@@ -1,0 +1,14 @@
+[package]
+name = "goodtype-math-recognize"
+version = "0.1.0"
+edition = "2024"
+license = "Apache-2.0"
+
+[dependencies]
+ort = { version = "=2.0.0-rc.12", default-features = false, features = ["std", "load-dynamic", "api-24"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tiny-skia = { version = "0.11", default-features = false, features = ["std"] }
+
+[dev-dependencies]
+image = { version = "0.25", default-features = false, features = ["png"] }

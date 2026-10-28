@@ -1,0 +1,147 @@
+{
+  "source_revision": "7b96df06b9d81cdb129c3bef68b7250bc3e2b0ea",
+  "onnx": "1.23.2",
+  "onnxruntime": "1.31.1",
+  "weight_type": "QInt8",
+  "activation_type": "QUInt8 (dynamic)",
+  "settings": {
+    "op_types_to_quantize": [
+      "MatMul",
+      "Gemm"
+    ],
+    "per_channel": true,
+    "reduce_range": false,
+    "use_external_data_format": false,
+    "extra_options": {
+      "EnableSubgraph": true,
+      "MatMulConstBOnly": true,
+      "WeightSymmetric": true
+    }
+  },
+  "shape_inference": "ONNX in memory; patched ORT path loader, no source-side temporary files",
+  "files": {
+    "encoder_model.onnx": {
+      "source_bytes": 343553824,
+      "source_sha256": "071afc0a0c92b2ee3847612127eb9e82b1c39413725e692f4405e5ea9e265bf0",
+      "output_bytes": 89332035,
+      "output_sha256": "dfb48cc64f63eba1ae79d3ad5dfd690484b503b0eb9bdb5651d3cf404df303a7",
+      "onnx_checker": "passed",
+      "graphs": [
+        {
+          "graph": "root",
+          "operators": {
+            "Constant": 287,
+            "Shape": 99,
+            "Conv": 1,
+            "Gather": 97,
+            "Unsqueeze": 97,
+            "Slice": 1,
+            "Concat": 51,
+            "Reshape": 50,
+            "Transpose": 49,
+            "ConstantOfShape": 1,
+            "Mul": 194,
+            "Equal": 1,
+            "Where": 1,
+            "Expand": 1,
+            "Add": 123,
+            "ReduceMean": 50,
+            "Sub": 25,
+            "Pow": 25,
+            "Sqrt": 25,
+            "Div": 49,
+            "DynamicQuantizeLinear": 48,
+            "MatMulInteger": 72,
+            "Cast": 72,
+            "MatMul": 24,
+            "Softmax": 12,
+            "Erf": 12
+          },
+          "int8_initializers": 144
+        }
+      ]
+    },
+    "decoder_model_merged.onnx": {
+      "source_bytes": 909186959,
+      "source_sha256": "8b78f10f67da98528fb507977f6d041fe0a8fb486a56b2132156f93b2d5de575",
+      "output_bytes": 279476526,
+      "output_sha256": "fdca7c0db645a16a2711bd2c6aebc3ad1ae00fdf9b45f4fe1d8f77b31c9c16c8",
+      "onnx_checker": "passed",
+      "graphs": [
+        {
+          "graph": "root",
+          "operators": {
+            "DynamicQuantizeLinear": 1,
+            "If": 1
+          },
+          "int8_initializers": 242
+        },
+        {
+          "graph": "root/optimum::if/else_branch",
+          "operators": {
+            "Shape": 90,
+            "Constant": 662,
+            "Gather": 88,
+            "Unsqueeze": 370,
+            "Concat": 221,
+            "Reshape": 220,
+            "Mul": 354,
+            "Cast": 125,
+            "Range": 2,
+            "ConstantOfShape": 3,
+            "Equal": 2,
+            "Where": 3,
+            "Expand": 2,
+            "Add": 258,
+            "ReduceMean": 74,
+            "Sub": 38,
+            "Pow": 37,
+            "Sqrt": 37,
+            "Div": 49,
+            "Slice": 2,
+            "Squeeze": 2,
+            "Less": 1,
+            "DynamicQuantizeLinear": 73,
+            "MatMulInteger": 121,
+            "Transpose": 120,
+            "MatMul": 48,
+            "Softmax": 24,
+            "Erf": 12
+          },
+          "int8_initializers": 0
+        },
+        {
+          "graph": "root/optimum::if/then_branch",
+          "operators": {
+            "Shape": 76,
+            "Constant": 576,
+            "Gather": 77,
+            "Unsqueeze": 266,
+            "Concat": 194,
+            "Reshape": 170,
+            "Mul": 305,
+            "Add": 221,
+            "Cast": 99,
+            "Range": 1,
+            "ConstantOfShape": 1,
+            "Equal": 1,
+            "Where": 1,
+            "Expand": 1,
+            "ReduceMean": 74,
+            "Sub": 37,
+            "Pow": 37,
+            "Sqrt": 37,
+            "Div": 49,
+            "DynamicQuantizeLinear": 73,
+            "MatMulInteger": 97,
+            "Transpose": 96,
+            "MatMul": 48,
+            "Softmax": 24,
+            "Erf": 12
+          },
+          "int8_initializers": 0
+        }
+      ]
+    }
+  }
+}
