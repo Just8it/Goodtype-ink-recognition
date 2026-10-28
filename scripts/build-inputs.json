@@ -1,0 +1,50 @@
+{
+  "onnx": {
+    "version": "1.23.2",
+    "file": "onnx-1.23.2-cp312-abi3-win_amd64.whl",
+    "url": "https://files.pythonhosted.org/packages/38/ce/102fd4a0b2a6d111a9c86745e084c4c68c0ee020eaa359a03a8d43e4646f/onnx-1.23.2-cp312-abi3-win_amd64.whl",
+    "sha256": "9b382ba898a7c142a0801d03cf04ecabced96c1543c7b643a86f0928143802de"
+  },
+  "onnxruntime": {
+    "version": "1.31.1",
+    "file": "onnxruntime-1.31.1-cp312-cp312-win_amd64.whl",
+    "url": "https://files.pythonhosted.org/packages/45/b2/793b4051d8dc6acb379ead9b72050f0ffa283ca49a6904add2e218b83e2e/onnxruntime-1.31.1-cp312-cp312-win_amd64.whl",
+    "sha256": "ae8a9a351efda685cc59a66226cdefaa37a126c1d66872ca23a2de9425326130"
+  },
+  "numpy": {
+    "version": "2.4.2",
+    "file": "numpy-2.4.2-cp312-cp312-win_amd64.whl",
+    "url": "https://files.pythonhosted.org/packages/92/0f/7ceaaeaacb40567071e94dbf2c9480c0ae453d5bb4f52bea3892c39dc83c/numpy-2.4.2-cp312-cp312-win_amd64.whl",
+    "sha256": "209fae046e62d0ce6435fcfe3b1a10537e858249b3d9b05829e2a05218296a85"
+  },
+  "protobuf": {
+    "version": "6.33.5",
+    "file": "protobuf-6.33.5-cp310-abi3-win_amd64.whl",
+    "url": "https://files.pythonhosted.org/packages/55/75/bb9bc917d10e9ee13dee8607eb9ab963b7cf8be607c46e7862c748aa2af7/protobuf-6.33.5-cp310-abi3-win_amd64.whl",
+    "sha256": "3093804752167bcab3998bec9f1048baae6e29505adaf1afd14a37bddede533c"
+  },
+  "ml_dtypes": {
+    "version": "0.5.4",
+    "file": "ml_dtypes-0.5.4-cp312-cp312-win_amd64.whl",
+    "url": "https://files.pythonhosted.org/packages/f5/f0/0cfadd537c5470378b1b32bd859cf2824972174b51b873c9d95cfd7475a5/ml_dtypes-0.5.4-cp312-cp312-win_amd64.whl",
+    "sha256": "c1a953995cccb9e25a4ae19e34316671e4e2edaebe4cf538229b1fc7109087b7"
+  },
+  "packaging": {
+    "version": "26.0",
+    "file": "packaging-26.0-py3-none-any.whl",
+    "url": "https://files.pythonhosted.org/packages/b7/b9/c538f279a4e237a006a2c98387d081e9eb060d203d8ed34467cc0f0b9b53/packaging-26.0-py3-none-any.whl",
+    "sha256": "b36f1fef9334a5588b4166f8bcd26a14e521f2b55e6b9de3aaa80d3ff7a37529"
+  },
+  "flatbuffers": {
+    "version": "25.12.19",
+    "file": "flatbuffers-25.12.19-py2.py3-none-any.whl",
+    "url": "https://files.pythonhosted.org/packages/e8/2d/d2a548598be01649e2d46231d151a6c56d10b964d94043a335ae56ea2d92/flatbuffers-25.12.19-py2.py3-none-any.whl",
+    "sha256": "7634f50c427838bb021c2d66a3d1168e9d199b0607e6329399f04846d42e20b4"
+  },
+  "typing_extensions": {
+    "version": "4.15.0",
+    "file": "typing_extensions-4.15.0-py3-none-any.whl",
+    "url": "https://files.pythonhosted.org/packages/18/67/36e9267722cc04a6b9f15c7f3441c2363321a3ea07da7ae0c0707beb2a9c/typing_extensions-4.15.0-py3-none-any.whl",
+    "sha256": "f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548"
+  }
+}
