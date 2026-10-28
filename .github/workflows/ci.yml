@@ -1,0 +1,105 @@
+name: CI
+
+on:
+  push:
+    branches: [dev, main]
+  pull_request:
+    types: [opened, synchronize, reopened, edited, ready_for_review]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  branch-policy:
+    name: Branch policy
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - run: node scripts/release.mjs policy
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  windows:
+    name: Windows verification
+    runs-on: windows-2025
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12.10'
+          architecture: x64
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - run: cargo xtask verify
+      - name: Reproduce pinned public models, package and test extracted ZIP
+        shell: pwsh
+        env:
+          BUILD_CHANNEL: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/dev' && 'dev' || 'stable') || 'local' }}
+        run: ./scripts/package.ps1 -Channel $env:BUILD_CHANNEL
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: windows-x64
+          path: |
+            target/package/*.zip
+            target/package/goodtype-math-recognizer-*-windows-x64.json
+            target/package/SHA256SUMS
+            target/package/RELEASE_NOTES.md
+          if-no-files-found: error
+          retention-days: 14
+
+  release:
+    name: Publish Windows release
+    if: github.event_name == 'push'
+    needs: [branch-policy, windows]
+    runs-on: ubuntu-24.04
+    environment: release
+    permissions:
+      contents: write
+      actions: read
+      pull-requests: read
+      actions: read
+    concurrency:
+      group: release-publish
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: windows-x64
+          path: release-assets
+      - name: Recheck promotion at publication
+        run: node scripts/release.mjs policy
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: Sign and verify release descriptor
+        run: python3 scripts/sign_release.py
+        env:
+          MATH_RECOGNIZER_SIGNING_KEY: ${{ secrets.MATH_RECOGNIZER_SIGNING_KEY }}
+      - name: Publish new immutable version
+        run: node scripts/release.mjs publish release-assets
+        env:
+          GH_TOKEN: ${{ github.token }}
