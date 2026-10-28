@@ -66,7 +66,8 @@ for single points. Crop origin is computed from the ink bounds. The pilot Canvas
 crops used selection-box origins: raster phase and rasterizer antialiasing can
 change pixels and predictions even for identical ink.
 
-CPU execution provider, four intra-op threads, full graph optimization. Encoder
+CPU execution provider, four intra-op threads, full graph optimization. ONNX
+Runtime telemetry is explicitly disabled before model loading. Encoder
 runs once; merged decoder takes a one-token input and past tensors thereafter,
 retaining first-pass cross-attention cache because the cached branch returns
 empty cross-attention outputs. Initial dummy tensors have length one and are

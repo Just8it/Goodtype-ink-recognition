@@ -144,6 +144,7 @@ impl Recognizer {
     pub fn load(exe_dir: &Path) -> Result<Self> {
         ort::init_from(exe_dir.join("onnxruntime.dll"))?
             .with_name("goodtype-math")
+            .with_telemetry(false)
             .commit();
         let model = exe_dir.join("models");
         let session = |name: &str| -> Result<Session> {
