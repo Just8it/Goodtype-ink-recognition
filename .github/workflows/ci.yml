@@ -75,7 +75,6 @@ jobs:
       contents: write
       actions: read
       pull-requests: read
-      actions: read
     concurrency:
       group: release-publish
       cancel-in-progress: false
