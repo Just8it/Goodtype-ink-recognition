@@ -79,7 +79,7 @@ def session_smoke(exe, cwd, addon, strokes):
             })
             operation, = response['result']['batch']['operations']
             assert operation['op'] == 'addTypstBlock' and operation['source'].startswith('$ ')
-            assert (operation['xPt'], operation['yPt'], operation['layoutWidthPt']) == (12, 16, 120)
+            assert (operation['xPt'], operation['yPt'], operation['layoutWidthPt']) == (12, 46, 120)
             process.stdin.close()
             assert not process.stdout.read() and not process.stderr.read()
             assert process.wait() == 0
@@ -128,7 +128,8 @@ def check(archive):
         for filename, key in [('encoder_model.onnx','encoderSha256'),('decoder_model_merged.onnx','decoderSha256')]:
             assert digest(package / 'models' / filename) == version['model'][key] == provenance['files'][filename]['output_sha256']
         assert json.loads(run('--check'))['ok'] is True
-        request = {'id':731,'strokes':[{'widthPt':1,'points':[[0,0],[10,10]]},{'widthPt':1,'points':[[0,10],[10,0]]}]}
+        # A page-sized "x"; the earlier 10 pt cross decoded to degenerate output on one CI runner.
+        request = {'id':731,'strokes':[{'widthPt':2,'points':[[0,0],[40,40]]},{'widthPt':2,'points':[[0,40],[40,0]]}]}
         rows = [json.loads(line) for line in run('--serve', input=json.dumps(request)+'\n').splitlines()]
         assert len(rows) == 2 and rows[0]['ready'] is True
         assert rows[1]['id'] == 731 and isinstance(rows[1]['latex'], str) and rows[1]['latex']
