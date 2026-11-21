@@ -33,8 +33,8 @@ and the pinned Hugging Face model (including its HTTPS CDN redirects); the shipp
 recognizer needs no network. No binaries are committed.
 
 The extracted ZIP must pass inventory and file hashes, descriptor/SHA256SUMS,
-manifest/protocol/version/model provenance, --check inference, and a bounded
---serve request followed by EOF. Every subprocess has a 180-second timeout.
+manifest/protocol/version/model provenance, --check inference, a bounded
+--serve request, and a --session handshake and invocation followed by EOF. Every subprocess has a 180-second timeout.
 These are synthetic smoke tests, not recognition-quality or pen-hardware evidence.
 
 ## Candidate acceptance and promotion
@@ -43,7 +43,10 @@ Each successful dev push publishes a new prerelease tag and downloadable ZIP,
 versioned JSON descriptor, SHA256SUMS, RELEASE_NOTES.md, recognizer-update.json
 and recognizer-update.json.sig. The ZIP contains importer-manifest.json with
 version, protocolVersion=1, notebookSchemaVersion=0, decoderCommit="", target,
-source provenance and files[{path,sizeBytes,sha256}]. The signed update descriptor
+source provenance and files[{path,sizeBytes,sha256}]. This inventory includes the
+root goodtype-addon.json, and the signed descriptor's archive digest covers both
+manifests. The addon manifest version tracks the Cargo base version. Bump it
+alongside Cargo.toml and Cargo.lock before the next stable release. The signed update descriptor
 uses archive{fileName,sizeBytes,sha256,url}, matching Goodtype's installer.
 Goodtype should fetch recognizer-update.json plus recognizer-update.json.sig.
 

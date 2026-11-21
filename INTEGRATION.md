@@ -1,4 +1,47 @@
-# Protocol v1 integration contract
+# Goodtype math recognizer integration
+
+## Addon session v0
+
+Start the verified manifest entrypoint with `--session`. The manifest declares the
+`math` addon, `recognize-math` for selected ink, and permission to propose page
+objects. The helper has no notebook path or write access through this protocol.
+The host owns approval, validation, preview, insertion and process lifetime.
+
+Send `initialize` first, with the manifest's addon identity, API
+`goodtype-api 0.1`, and the capability offer. The child requires
+`page-batch-v0` and selects `cancel` when offered. No progress notifications
+are emitted. The session identity is the numeric manifest/Cargo base version.
+For stable builds it is also the archive and CLI release version. Local and dev
+artifacts have a suffix in the archive descriptor and legacy CLI version for
+build provenance. Use the manifest identity when driving those builds directly.
+The registry's numeric release contract currently admits stable artifacts.
+
+Each frame is a strict UTF-8 JSON-RPC 2.0 object, at most 4 MiB before LF or
+CRLF. Send one request at a time with a fresh positive decimal string ID.
+Stdout is protocol-only. Stderr contains bounded diagnostics without ink or
+source. For example, after a successful initialize response:
+
+```json
+{"jsonrpc":"2.0","id":"2","method":"command/invoke","params":{"command":"recognize-math","scope":{"kind":"ink-selection","page":{"widthPt":595.28,"heightPt":841.89},"strokes":[{"id":"s1","widthPt":2,"points":[[100,200],[110,205]]}]},"settings":{}}}
+```
+
+The result contains `batch.operations` with one `addTypstBlock` operation.
+Its `source` is display Typst math and its `xPt`, `yPt` and `layoutWidthPt`
+use Goodtype's existing centerline-bounds placement. The host validates the
+batch and compiles against approved resources before review or insertion.
+Unsupported or oversized translated output returns `-32003` with up to 16 KiB
+of UTF-8 `data.latex` for correction. Command failures use `-32001`.
+Unknown methods, invalid params and internal failures use `-32601`, `-32602`
+and `-32603`, respectively.
+
+With negotiated cancel, send `command/cancel` as a notification with
+`params.id` set to the active invocation ID. The child emits `-32002` and
+exits. If the result already won the race, the host still discards it and ends
+the session. Treat framing or sequencing failures as terminal and do not
+replay the invocation. The process lifetime is bounded by the host. For long
+warm sessions, recycle before 65,536 request IDs or 4 MiB of cumulative IDs.
+
+## Legacy CLI protocol v1
 
 Executable: `goodtype-math-recognize.exe`, version 0.1.0. Optional child process;
 Goodtype downloads only after opt-in and owns process lifetime, cancellation,
@@ -27,13 +70,13 @@ Additional resource guard: raster allocation above 64 megapixels returns an
 error, because protocol-valid coordinates can otherwise request terabytes.
 Valid ink can take the full 1024-token decode budget; the protocol has no
 cancellation request or deadline. The parent should use a Job Object and timeout.
-No protocol extension was made. Startup failure is ok=false/error and nonzero
+Legacy startup failure is ok=false/error and nonzero
 exit; it cannot emit ready=true. Logs/diagnostics are stderr only. Stdout is JSONL.
 
 Package model/runtime hashes are verified by the build script and recorded in
 package-manifest.json. Runtime version reports pinned model identity, not an
 on-start cryptographic integrity check. Goodtype must authenticate the optional
-archive before extraction. No signing or remote release mechanism is included.
+archive before extraction. See [RELEASING.md](./RELEASING.md) for signed metadata.
 
 ## Inference
 
@@ -69,7 +112,9 @@ No BPE encoder/training engine is necessary. TexTeller remove_style is ported
 for bm, boldsymbol, textit, textbf and mathbf, including nested/escaped braces
 and malformed groups. Display wrappers are stripped like the reference runner.
 The format_latex and add_newlines whitespace formatting is omitted; no
-mathematical token rewrite or LaTeX-to-Typst conversion is performed.
+mathematical token rewrite is performed in model postprocessing. Session mode
+passes the returned LaTeX through the bounded translator carried over from
+Goodtype's recognition module. Legacy mode returns LaTeX.
 
 ## Dependencies
 

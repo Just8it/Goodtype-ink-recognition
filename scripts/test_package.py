@@ -4,6 +4,7 @@ from pathlib import Path, PurePosixPath
 import subprocess
 import sys
 import tempfile
+from threading import Timer
 import zipfile
 from acquire_inputs import digest
 
@@ -21,6 +22,73 @@ def safe_members(archive):
             raise ValueError('duplicate or symlink ZIP member')
         names.add(i.filename.casefold())
     return infos
+
+
+def check_addon_manifest(addon, base_version):
+    assert set(addon) == {
+        'manifestVersion', 'id', 'version', 'apiVersion', 'target', 'entrypoint',
+        'transport', 'permissions', 'commands', 'settings', 'strings',
+    }
+    assert type(addon['manifestVersion']) is int and addon['manifestVersion'] == 1
+    assert addon['id'] == 'math' and addon['version'] == base_version
+    assert addon['apiVersion'] == 'goodtype-api 0.1'
+    assert addon['target'] == 'x86_64-pc-windows-msvc'
+    assert addon['entrypoint'] == 'goodtype-math-recognize.exe'
+    assert addon['transport'] == 'stdio-jsonrpc'
+    assert addon['permissions'] == ['selected-ink', 'add-page-objects']
+    assert addon['commands'] == [{
+        'id': 'recognize-math', 'label': 'recognize-math', 'surface': 'ink-selection',
+    }]
+    assert addon['settings'] == []
+    assert set(addon['strings']) == {'en', 'de'}
+    for locale in addon['strings'].values():
+        assert set(locale) == {'name', 'recognize-math'}
+        for value in locale.values():
+            assert 1 <= len(value) <= 256
+            assert all(c not in '<>' and not (ord(c) < 32 or 127 <= ord(c) <= 159) for c in value)
+            assert '{{' not in value and '}}' not in value
+    assert addon['strings']['en'] != addon['strings']['de']
+
+
+def session_smoke(exe, cwd, addon, strokes):
+    with subprocess.Popen([str(exe), '--session'], cwd=cwd, text=True,
+                          stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                          stderr=subprocess.PIPE, encoding='utf8') as process:
+        timer = Timer(180, process.kill)
+        timer.start()
+        try:
+            def exchange(id, method, params):
+                frame = {'jsonrpc': '2.0', 'id': id, 'method': method, 'params': params}
+                process.stdin.write(json.dumps(frame) + '\n')
+                process.stdin.flush()
+                reply = json.loads(process.stdout.readline())
+                assert set(reply) == {'jsonrpc', 'id', 'result'}, reply
+                assert reply['jsonrpc'] == '2.0' and reply['id'] == id
+                return reply
+
+            identity = {'id': addon['id'], 'version': addon['version']}
+            offer = {'apiVersion': addon['apiVersion'], 'addon': identity,
+                     'capabilities': ['progress', 'cancel', 'page-batch-v0']}
+            handshake = exchange('1', 'initialize', offer)
+            assert handshake['result'] == {**offer, 'capabilities': ['page-batch-v0', 'cancel']}
+            response = exchange('2', 'command/invoke', {
+                'command': 'recognize-math', 'settings': {}, 'scope': {
+                    'kind': 'ink-selection', 'page': {'widthPt': 595.28, 'heightPt': 841.89},
+                    'strokes': [{**stroke, 'id': f's{i}'} for i, stroke in enumerate(strokes, 1)],
+                },
+            })
+            operation, = response['result']['batch']['operations']
+            assert operation['op'] == 'addTypstBlock' and operation['source'].startswith('$ ')
+            assert (operation['xPt'], operation['yPt'], operation['layoutWidthPt']) == (12, 16, 120)
+            process.stdin.close()
+            assert not process.stdout.read() and not process.stderr.read()
+            assert process.wait() == 0
+            print(json.dumps(handshake))
+            print(json.dumps(response))
+        finally:
+            timer.cancel()
+            if process.poll() is None:
+                process.kill()
 
 
 def check(archive):
@@ -46,7 +114,9 @@ def check(archive):
         for entry in manifest['files']:
             p = package / entry['path']
             assert p.stat().st_size == entry['sizeBytes'] and digest(p) == entry['sha256'], entry['path']
-        exe = package / 'goodtype-math-recognize.exe'
+        addon = json.loads((package / 'goodtype-addon.json').read_text(encoding='utf8'))
+        check_addon_manifest(addon, manifest['baseVersion'])
+        exe = package / addon['entrypoint']
         def run(*args, **kwargs):
             return subprocess.run([str(exe), *args], cwd=destination, text=True, capture_output=True, check=True, timeout=180, **kwargs).stdout
         version = json.loads(run('--version','--json'))
@@ -63,7 +133,8 @@ def check(archive):
         assert len(rows) == 2 and rows[0]['ready'] is True
         assert rows[1]['id'] == 731 and isinstance(rows[1]['latex'], str) and rows[1]['latex']
         assert 'error' not in rows[1]
-    print('Extracted ZIP: hashes, provenance, CLI version/protocol, --check and bounded --serve passed')
+        session_smoke(exe, destination, addon, request['strokes'])
+    print('Extracted ZIP: hashes, provenance, manifests, CLI version, --check, --serve and --session passed')
 
 
 if __name__ == '__main__':

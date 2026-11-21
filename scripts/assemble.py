@@ -18,6 +18,10 @@ for source,target,expected in assets:
  if expected and digest(source)!=expected:raise ValueError(f'asset hash mismatch: {target}')
  shutil.copyfile(source,dest/target)
 for file in ['LICENSE','THIRD_PARTY.md','README.md','INTEGRATION.md','model-provenance.json']:shutil.copyfile(r/file,dest/file)
+addon_manifest = json.loads((r/'goodtype-addon.json').read_text(encoding='utf8'))
+if addon_manifest['version'] != metadata['baseVersion'] or addon_manifest['target'] != metadata['target']:
+ raise ValueError('addon manifest identity does not match the build')
+shutil.copyfile(r/'goodtype-addon.json',dest/'goodtype-addon.json')
 shutil.copytree(r/'licenses',dest/'licenses')
 cargo_metadata=json.loads(subprocess.check_output(['cargo','metadata','--locked','--format-version','1','--filter-platform','x86_64-pc-windows-msvc'],cwd=r))
 # Dev-only PNG dependencies are excluded from the shipped executable's license list.
