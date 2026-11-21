@@ -15,7 +15,7 @@
 <p align="center">Turn handwritten math into editable content. Keep your notes on your own disk.</p>
 
 An optional math recognition add-on for [Goodtype](https://github.com/Just8it/Goodtype).
-Goodtype sends selected strokes to this helper, receives LaTeX and converts it to editable Typst.
+Goodtype sends selected strokes to this helper and receives an editable Typst proposal.
 You review and correct the result before inserting it. Your handwriting stays unchanged.
 
 Recognition runs offline on your CPU. No account, upload or telemetry. The model and runtime
@@ -38,7 +38,8 @@ To check an extracted package:
 
     .\goodtype-math-recognize.exe --check
 
-The helper communicates with Goodtype through a local child process. It does not open or modify
+The helper communicates with Goodtype through a local child process. The addon uses
+`--session` for JSON-RPC. Older beta builds can continue to use `--serve`. It does not open or modify
 notebooks. [INTEGRATION.md](./INTEGRATION.md) describes the protocol and model implementation.
 
 ## Build
