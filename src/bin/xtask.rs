@@ -20,4 +20,28 @@ fn main() {
             std::process::exit(1);
         }
     }
+    for (program, args) in [
+        (
+            "python",
+            vec![
+                "-m",
+                "unittest",
+                "discover",
+                "-s",
+                "scripts",
+                "-p",
+                "test_release.py",
+            ],
+        ),
+        ("node", vec!["--test", "scripts/release.test.mjs"]),
+    ] {
+        if !std::process::Command::new(program)
+            .args(args)
+            .status()
+            .expect("run release script tests")
+            .success()
+        {
+            std::process::exit(1);
+        }
+    }
 }

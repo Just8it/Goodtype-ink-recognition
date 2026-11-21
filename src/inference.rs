@@ -142,10 +142,22 @@ pub struct Recognizer {
 }
 impl Recognizer {
     pub fn load(exe_dir: &Path) -> Result<Self> {
-        ort::init_from(exe_dir.join("onnxruntime.dll"))?
+        Self::load_model(exe_dir, false)
+    }
+
+    pub fn load_for_session(exe_dir: &Path) -> Result<Self> {
+        Self::load_model(exe_dir, true)
+    }
+
+    fn load_model(exe_dir: &Path, session_mode: bool) -> Result<Self> {
+        let mut environment = ort::init_from(exe_dir.join("onnxruntime.dll"))?
             .with_name("goodtype-math")
-            .with_telemetry(false)
-            .commit();
+            .with_telemetry(false);
+        if session_mode {
+            // Keep runtime logs out of the protocol and bound stderr to our fixed diagnostics.
+            environment = environment.with_logger(std::sync::Arc::new(|_, _, _, _, _| {}));
+        }
+        environment.commit();
         let model = exe_dir.join("models");
         let session = |name: &str| -> Result<Session> {
             Ok(Session::builder()?

@@ -1,0 +1,16 @@
+{
+  "manifestVersion": 1,
+  "id": "math",
+  "version": "0.1.0",
+  "apiVersion": "goodtype-api 0.1",
+  "target": "x86_64-pc-windows-msvc",
+  "entrypoint": "goodtype-math-recognize.exe",
+  "transport": "stdio-jsonrpc",
+  "permissions": ["selected-ink", "add-page-objects"],
+  "commands": [{"id": "recognize-math", "label": "recognize-math", "surface": "ink-selection"}],
+  "settings": [],
+  "strings": {
+    "en": {"name": "Math recognition", "recognize-math": "Recognize handwriting as math"},
+    "de": {"name": "Mathematikerkennung", "recognize-math": "Handschrift als Formel erkennen"}
+  }
+}

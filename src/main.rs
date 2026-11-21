@@ -1,30 +1,39 @@
 use goodtype_math_recognize::{
     Result,
     inference::{DECODER_HASH, ENCODER_HASH, Recognizer},
-    protocol,
+    protocol, session,
 };
 use serde_json::json;
 use std::{
-    io::{self, Write},
+    io::{self, BufReader, Write},
     time::Instant,
 };
-fn run() -> Result<()> {
-    let args: Vec<String> = std::env::args().skip(1).collect();
+fn run(args: &[String]) -> Result<()> {
     if args == ["--version", "--json"] {
+        let version = option_env!("GOODTYPE_BUILD_VERSION").unwrap_or(env!("CARGO_PKG_VERSION"));
         println!(
             "{}",
-            json!({"name":"goodtype-math-recognize","version":"0.1.0","protocolVersion":1,"model":{"id":"texteller-int8","baseRevision":"7b96df06b9d81cdb129c3bef68b7250bc3e2b0ea","encoderSha256":ENCODER_HASH,"decoderSha256":DECODER_HASH}})
+            json!({"name":"goodtype-math-recognize","version":version,"protocolVersion":1,"model":{"id":"texteller-int8","baseRevision":"7b96df06b9d81cdb129c3bef68b7250bc3e2b0ea","encoderSha256":ENCODER_HASH,"decoderSha256":DECODER_HASH}})
         );
         return Ok(());
     }
-    if args != ["--check"] && args != ["--serve"] {
-        return Err("usage: goodtype-math-recognize --version --json | --check | --serve".into());
+    if args != ["--check"] && args != ["--serve"] && args != ["--session"] {
+        return Err(
+            "usage: goodtype-math-recognize --version --json | --check | --serve | --session"
+                .into(),
+        );
     }
     let started = Instant::now();
     let dir = std::env::current_exe()?
         .parent()
         .ok_or("missing executable directory")?
         .to_owned();
+    if args == ["--session"] {
+        let mut model = Recognizer::load_for_session(&dir)?;
+        return session::run(BufReader::new(io::stdin()), io::stdout().lock(), move |r| {
+            model.strokes(r)
+        });
+    }
     let mut model = Recognizer::load(&dir)?;
     let load = started.elapsed().as_secs_f64() * 1000.;
     if args == ["--check"] {
@@ -47,8 +56,16 @@ fn run() -> Result<()> {
     Ok(())
 }
 fn main() {
-    if let Err(e) = run() {
-        println!("{}", json!({"ok":false,"error":e.to_string()}));
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    if args == ["--session"] {
+        std::panic::set_hook(Box::new(|_| eprintln!("Math addon internal error")));
+    }
+    if let Err(e) = run(&args) {
+        if args == ["--session"] {
+            eprintln!("Math addon session failed");
+        } else {
+            println!("{}", json!({"ok":false,"error":e.to_string()}));
+        }
         std::process::exit(1);
     }
 }
