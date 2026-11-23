@@ -36,4 +36,4 @@ def sign(directory, public_key, private_key):
 
 
 if __name__ == "__main__":
-    sign(Path("release-assets"), Path("release-public-key.pem"), os.environ["MATH_RECOGNIZER_SIGNING_KEY"])
+    sign(Path(os.environ["RELEASE_ASSETS"]), Path("release-public-key.pem"), os.environ["MATH_RECOGNIZER_SIGNING_KEY"])

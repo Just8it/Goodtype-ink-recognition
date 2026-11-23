@@ -43,7 +43,7 @@ warm sessions, recycle before 65,536 request IDs or 4 MiB of cumulative IDs.
 
 ## Legacy CLI protocol v1
 
-Executable: `goodtype-math-recognize.exe`, version 0.1.0. Optional child process;
+Executable: `goodtype-math-recognize.exe`, version 0.1.1. Optional child process;
 Goodtype downloads only after opt-in and owns process lifetime, cancellation,
 user consent and LaTeX-to-Typst conversion. The helper never changes notebooks.
 

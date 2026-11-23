@@ -1,5 +1,5 @@
 """Assemble only an explicit allowlist, then test the extracted release bytes."""
-import hashlib,json,shutil,subprocess,sys,zipfile
+import hashlib,os,json,shutil,subprocess,sys,zipfile
 from pathlib import Path
 r=Path(__file__).resolve().parents[1];b=Path(sys.argv[1]).resolve()
 metadata=json.loads((r/'target/release-metadata.json').read_text())
@@ -19,7 +19,7 @@ for source,target,expected in assets:
  shutil.copyfile(source,dest/target)
 for file in ['LICENSE','THIRD_PARTY.md','README.md','INTEGRATION.md','model-provenance.json']:shutil.copyfile(r/file,dest/file)
 addon_manifest = json.loads((r/'goodtype-addon.json').read_text(encoding='utf8'))
-if addon_manifest['version'] != metadata['baseVersion'] or addon_manifest['target'] != metadata['target']:
+if addon_manifest['version'] != metadata['version'] or addon_manifest['target'] != metadata['target']:
  raise ValueError('addon manifest identity does not match the build')
 shutil.copyfile(r/'goodtype-addon.json',dest/'goodtype-addon.json')
 shutil.copytree(r/'licenses',dest/'licenses')
@@ -48,14 +48,15 @@ with (dest/'THIRD_PARTY.md').open('a',encoding='utf8') as f:
  for p in catalog:f.write(f"| {p['name']} | {p['version']} | {p['license']} |\n")
 manifest={**metadata,'protocolVersion':1,'notebookSchemaVersion':0,'decoderCommit':'','sourceCommit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=r,text=True).strip(),'sourceDirty':bool(subprocess.check_output(['git','status','--porcelain'],cwd=r).strip()),'files':[{'path':p.relative_to(dest).as_posix(),'sizeBytes':p.stat().st_size,'sha256':digest(p)} for p in sorted(dest.rglob('*')) if p.is_file()]}
 assert manifest['sourceCommit']==metadata['sourceCommit']
-if metadata['channel']!='local':assert not manifest['sourceDirty']
+assert manifest['sourceDirty']==metadata['sourceDirty']
 (dest/'importer-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf8')
 archive=out/(name+'.zip')
 with zipfile.ZipFile(archive,'x',zipfile.ZIP_DEFLATED,strict_timestamps=False) as z:
  for p in sorted(dest.rglob('*')):
   if p.is_file():z.write(p,Path(name)/p.relative_to(dest))
 # Independent extraction, hashes, version and inference are required before publication.
-result={**metadata,'protocolVersion':1,'notebookSchemaVersion':0,'decoderCommit':'','archive':{'fileName':archive.name,'sizeBytes':archive.stat().st_size,'sha256':digest(archive),'url':f"https://github.com/Just8it/Goodtype-ink-recognition/releases/download/v{metadata['version']}/{archive.name}"}}
+repository=os.environ.get('GITHUB_REPOSITORY', 'goodtype-notes/Goodtype-Math-Recognition')
+result={**metadata,'protocolVersion':1,'notebookSchemaVersion':0,'decoderCommit':'','archive':{'fileName':archive.name,'sizeBytes':archive.stat().st_size,'sha256':digest(archive),'url':f"https://github.com/{repository}/releases/download/v{metadata['version']}/{archive.name}"}}
 descriptor=out/(name+'.json')
 descriptor.write_text(json.dumps(result,indent=2)+'\n',encoding='utf8')
 (out/'SHA256SUMS').write_text(f"{digest(archive)}  {archive.name}\n{digest(descriptor)}  {descriptor.name}\n",encoding='utf8')

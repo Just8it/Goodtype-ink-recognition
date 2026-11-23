@@ -10,7 +10,7 @@ use std::{
 };
 fn run(args: &[String]) -> Result<()> {
     if args == ["--version", "--json"] {
-        let version = option_env!("GOODTYPE_BUILD_VERSION").unwrap_or(env!("CARGO_PKG_VERSION"));
+        let version = env!("CARGO_PKG_VERSION");
         println!(
             "{}",
             json!({"name":"goodtype-math-recognize","version":version,"protocolVersion":1,"model":{"id":"texteller-int8","baseRevision":"7b96df06b9d81cdb129c3bef68b7250bc3e2b0ea","encoderSha256":ENCODER_HASH,"decoderSha256":DECODER_HASH}})
