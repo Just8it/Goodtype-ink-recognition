@@ -107,7 +107,7 @@ def check(archive):
             zipped.extractall(destination)
         package = destination / descriptor['packageName']
         manifest = json.loads((package / 'importer-manifest.json').read_text(encoding='utf8'))
-        for key in ('version','baseVersion','channel','sourceCommit','sourceDirty','target','packageName'):
+        for key in ('version','sourceCommit','sourceDirty','target','packageName'):
             assert manifest[key] == descriptor[key], key
         actual = {p.relative_to(package).as_posix() for p in package.rglob('*') if p.is_file()}
         assert actual == {f['path'] for f in manifest['files']} | {'importer-manifest.json'}
@@ -115,7 +115,7 @@ def check(archive):
             p = package / entry['path']
             assert p.stat().st_size == entry['sizeBytes'] and digest(p) == entry['sha256'], entry['path']
         addon = json.loads((package / 'goodtype-addon.json').read_text(encoding='utf8'))
-        check_addon_manifest(addon, manifest['baseVersion'])
+        check_addon_manifest(addon, manifest['version'])
         exe = package / addon['entrypoint']
         def run(*args, **kwargs):
             return subprocess.run([str(exe), *args], cwd=destination, text=True, capture_output=True, check=True, timeout=180, **kwargs).stdout

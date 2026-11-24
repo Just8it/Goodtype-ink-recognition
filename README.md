@@ -1,4 +1,4 @@
-[![checks](https://github.com/Just8it/Goodtype-ink-recognition/actions/workflows/ci.yml/badge.svg)](https://github.com/Just8it/Goodtype-ink-recognition/actions)
+[![checks](https://github.com/goodtype-notes/Goodtype-Math-Recognition/actions/workflows/ci.yml/badge.svg)](https://github.com/goodtype-notes/Goodtype-Math-Recognition/actions)
 [![license](https://img.shields.io/badge/license-Apache%202.0-green)](./LICENSE)
 [![platform](https://img.shields.io/badge/platform-Windows-blue)](#use)
 [![built with](https://img.shields.io/badge/built%20with-Rust-orange)](#build)
@@ -14,7 +14,7 @@
 
 <p align="center">Turn handwritten math into editable content. Keep your notes on your own disk.</p>
 
-An optional math recognition add-on for [Goodtype](https://github.com/Just8it/Goodtype).
+An optional math recognition add-on for [Goodtype](https://github.com/goodtype-notes/Goodtype).
 Goodtype sends selected strokes to this helper and receives an editable Typst proposal.
 You review and correct the result before inserting it. Your handwriting stays unchanged.
 
@@ -30,9 +30,8 @@ It handles selected expressions, not whole notebook pages. See the
 
 ## Use
 
-Download the **Windows x64 ZIP** from [Releases](https://github.com/Just8it/Goodtype-ink-recognition/releases),
-extract it and keep the whole folder together. Use a stable release for normal use;
-prereleases are development candidates. No Python or separate runtime installation is needed.
+Download the **Windows x64 ZIP** from [Releases](https://github.com/goodtype-notes/Goodtype-Math-Recognition/releases),
+extract it and keep the whole folder together. No Python or separate runtime installation is needed.
 
 To check an extracted package:
 

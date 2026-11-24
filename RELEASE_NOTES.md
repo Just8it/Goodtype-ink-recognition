@@ -1,4 +1,6 @@
-﻿# Goodtype Ink Recognition 0.1.0
+# Goodtype Math Recognition 0.1.1
+
+Signed release under the goodtype-notes organization.
 
 Portable Windows x64 offline TexTeller INT8 recognition helper for Goodtype.
 Extract the entire ZIP; retain the models, ONNXRuntime DLL and license notices.

@@ -1,7 +1,7 @@
 {
   "manifestVersion": 1,
   "id": "math",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "apiVersion": "goodtype-api 0.1",
   "target": "x86_64-pc-windows-msvc",
   "entrypoint": "goodtype-math-recognize.exe",
